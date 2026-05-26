@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
-import vociList from "@/data/vociList";
+import { useVoci } from "@/context/vociContext";
 
 export default function LearnScreen() {
     const router = useRouter();
+    const { vociList } = useVoci();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [showTranslation, setShowTranslation] = useState(false);
     const [correctCount, setCorrectCount] = useState(0);
