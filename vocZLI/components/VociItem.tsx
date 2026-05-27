@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
+import { useRouter } from "expo-router";
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import type Voci from "../models/voci";
 
 type VociItemProps = {
@@ -6,11 +7,21 @@ type VociItemProps = {
 };
 
 export default function VociItem({ voci }: Readonly<VociItemProps>) {
+    const router = useRouter();
+
     return (
-        <View style={styles.card}>
+        <TouchableOpacity
+            style={styles.card}
+            activeOpacity={0.75}
+            onPress={() =>
+                router.push(`/editVoci?term=${encodeURIComponent(voci.term)}`)
+            }
+            accessibilityRole="button"
+            accessibilityLabel={`${voci.term} bearbeiten`}
+        >
             <Text style={styles.term}>{voci.term}</Text>
             <Text style={styles.translation}>{voci.translation}</Text>
-        </View>
+        </TouchableOpacity>
     );
 }
 

@@ -52,6 +52,21 @@ export default function RootLayout() {
                   ),
               }}
           />
+          <Stack.Screen
+              name="editVoci"
+              options={{
+                  title: "Vokabel bearbeiten",
+                  presentation: 'modal',
+                  headerLeft: () => (
+                      <Pressable
+                          onPress={() => router.back()}
+                          accessibilityLabel="Abbrechen"
+                      >
+                          <Ionicons name="chevron-back" size={32} color="#fff"/>
+                      </Pressable>
+                  ),
+              }}
+          />
       </Stack>
     </VociProvider>
   );

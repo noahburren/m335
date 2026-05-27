@@ -10,6 +10,7 @@ type VociDetailProps =
     | {
     voci: Voci;
     onSave: (voci: Voci) => void;
+    onCancel: () => void;
     onDelete: (voci: Voci) => void;
 };
 
@@ -51,6 +52,28 @@ export default function VociDetail(props: Readonly<VociDetailProps>) {
         }
     };
 
+    const handleDelete = () => {
+        if (!isEditing) {
+            return;
+        }
+
+        Alert.alert(
+            "Vokabel löschen",
+            `Möchten Sie "${voci.term}" wirklich löschen?`,
+            [
+                {
+                    text: "Abbrechen",
+                    style: "cancel",
+                },
+                {
+                    text: "Löschen",
+                    style: "destructive",
+                    onPress: () => props.onDelete(voci),
+                },
+            ]
+        );
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.card}>
@@ -85,17 +108,26 @@ export default function VociDetail(props: Readonly<VociDetailProps>) {
                 </Pressable>
 
                 {isEditing && (
-                    <>
+                    <View>
+                        <Pressable
+                            style={({ pressed }) => [
+                                styles.secondaryButton,
+                                pressed && styles.buttonPressed,
+                            ]}
+                            onPress={props.onCancel}
+                        >
+                            <Text style={styles.secondaryButtonText}>Abbrechen</Text>
+                        </Pressable>
                         <Pressable
                             style={({ pressed }) => [
                                 styles.deleteButton,
                                 pressed && styles.buttonPressed,
                             ]}
-                            onPress={() => props.onDelete(voci)}
+                            onPress={handleDelete}
                         >
                             <Text style={styles.buttonText}>Löschen</Text>
                         </Pressable>
-                    </>
+                    </View>
                 )}
             </View>
         </View>
