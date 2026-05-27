@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import type Voci from "../models/voci";
 
 type VociItemProps = {
@@ -19,8 +19,17 @@ export default function VociItem({ voci }: Readonly<VociItemProps>) {
             accessibilityRole="button"
             accessibilityLabel={`${voci.term} bearbeiten`}
         >
-            <Text style={styles.term}>{voci.term}</Text>
-            <Text style={styles.translation}>{voci.translation}</Text>
+            {voci.imageUri ? (
+                <Image source={{ uri: voci.imageUri }} style={styles.thumbnail} />
+            ) : (
+                <View style={styles.placeholder}>
+                    <Text style={styles.placeholderText}>Bild</Text>
+                </View>
+            )}
+            <View style={styles.textContainer}>
+                <Text style={styles.term}>{voci.term}</Text>
+                <Text style={styles.translation}>{voci.translation}</Text>
+            </View>
         </TouchableOpacity>
     );
 }
@@ -31,6 +40,8 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 10,
         marginBottom: 12,
+        flexDirection: "row",
+        alignItems: "center",
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -39,6 +50,28 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.15,
         shadowRadius: 4,
         elevation: 3,
+    },
+    thumbnail: {
+        width: 60,
+        height: 60,
+        borderRadius: 8,
+        marginRight: 12,
+    },
+    placeholder: {
+        width: 60,
+        height: 60,
+        borderRadius: 8,
+        marginRight: 12,
+        backgroundColor: "#e5e5e5",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    placeholderText: {
+        color: "#666",
+        fontSize: 12,
+    },
+    textContainer: {
+        flex: 1,
     },
     term: {
         fontSize: 20,

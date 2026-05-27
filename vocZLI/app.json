@@ -30,8 +30,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Diese App benötigt Zugriff auf deine Fotos, damit du Bilder auswählen kannst.",
-          "cameraPermission": "Diese App benötigt Zugriff auf deine Kamera, damit du Fotos aufnehmen kannst.",
+          "photosPermission": "Diese App benoetigt Zugriff auf deine Fotos, damit du Bilder auswählen kannst.",
+          "cameraPermission": "Diese App benoetigt Zugriff auf deine Kamera, damit du Fotos aufnehmen kannst.",
           "microphonePermission": false
         }
       ],

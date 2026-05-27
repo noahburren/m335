@@ -3,6 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {ActivityIndicator, StyleSheet, View} from "react-native";
 import initialVociList from "../data/vociList";
 import type Voci from "../models/voci";
+import { deleteStoredImage } from "@/utils/imageStorage";
 
 interface VociContextType {
     vociList: Voci[];
@@ -59,16 +60,27 @@ export function VociProvider({ children }: Readonly<{ children: ReactNode }>) {
 
     const updateVoci = (term: string, updatedVoci: Voci) => {
         setVociList((currentVociList) =>
-            currentVociList.map((voci) =>
-                voci.term === term ? updatedVoci : voci
-            )
+            currentVociList.map((voci) => {
+                if (voci.term !== term) {
+                    return voci;
+                }
+
+                if (voci.imageUri && voci.imageUri !== updatedVoci.imageUri) {
+                    deleteStoredImage(voci.imageUri);
+                }
+
+                return updatedVoci;
+            })
         );
     };
 
     const removeVoci = (term: string) => {
-        setVociList((currentVociList) =>
-            currentVociList.filter((voci) => voci.term !== term)
-        );
+        setVociList((currentVociList) => {
+            const vociToRemove = currentVociList.find((voci) => voci.term === term);
+            deleteStoredImage(vociToRemove?.imageUri);
+
+            return currentVociList.filter((voci) => voci.term !== term);
+        });
     };
 
     if (isLoading) {

@@ -1,5 +1,6 @@
-import {Alert, Image, StyleSheet, Text, TouchableOpacity} from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
+import { copyImageToAppDirectory } from "@/utils/imageStorage";
+import * as ImagePicker from "expo-image-picker";
+import { Alert, Image, StyleSheet, Text, TouchableOpacity } from "react-native";
 
 interface ImagePickerButtonProps {
     imageUri?: string;
@@ -10,59 +11,67 @@ export default function ImagePickerButton({
     imageUri,
     onImageSelected,
 }: ImagePickerButtonProps) {
-    const openCamera = async () => {
-        const {status} = await ImagePicker.requestCameraPermissionsAsync();
+    const handleSelectedResult = async (result: ImagePicker.ImagePickerResult) => {
+        if (result.canceled || result.assets.length === 0) {
+            return;
+        }
 
-        if (status !== 'granted') {
-            Alert.alert('Fehler', 'Kamera-Zugriff benoetigt!');
+        try {
+            const permanentUri = await copyImageToAppDirectory(result.assets[0].uri);
+            onImageSelected(permanentUri);
+        } catch (error) {
+            console.error("Bild konnte nicht gespeichert werden", error);
+            Alert.alert("Fehler", "Bild konnte nicht gespeichert werden.");
+        }
+    };
+
+    const openCamera = async () => {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+
+        if (status !== "granted") {
+            Alert.alert("Fehler", "Kamera-Zugriff benötigt!");
             return;
         }
 
         const result = await ImagePicker.launchCameraAsync({
-            mediaTypes: ['images'],
+            mediaTypes: ["images"],
             allowsEditing: true,
             quality: 1,
         });
 
-        if (!result.canceled) {
-            const uri = result.assets[0].uri;
-            onImageSelected(uri);
-        }
+        await handleSelectedResult(result);
     };
 
     const openGallery = async () => {
-        const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-        if (status !== 'granted') {
-            Alert.alert('Fehler', 'Galerie-Zugriff benoetigt!');
+        if (status !== "granted") {
+            Alert.alert("Fehler", "Galerie-Zugriff benötigt!");
             return;
         }
 
         const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
+            mediaTypes: ["images"],
             allowsEditing: true,
             quality: 1,
         });
 
-        if (!result.canceled) {
-            const uri = result.assets[0].uri;
-            onImageSelected(uri);
-        }
+        await handleSelectedResult(result);
     };
 
     const handlePress = () => {
-        Alert.alert('Bild auswaehlen', 'Was moechtest du tun?', [
+        Alert.alert("Bild auswählen", "Was möchtest du tun?", [
             {
-                text: 'Foto aufnehmen',
+                text: "Foto aufnehmen",
                 onPress: openCamera,
             },
             {
-                text: 'Aus Galerie waehlen',
+                text: "Aus Galerie wählen",
                 onPress: openGallery,
             },
             {
-                text: 'Abbrechen',
-                style: 'cancel',
+                text: "Abbrechen",
+                style: "cancel",
             },
         ]);
     };
@@ -70,9 +79,9 @@ export default function ImagePickerButton({
     return (
         <TouchableOpacity style={styles.container} onPress={handlePress}>
             {imageUri ? (
-                <Image source={{uri: imageUri}} style={styles.image}/>
+                <Image source={{ uri: imageUri }} style={styles.image} />
             ) : (
-                <Text style={styles.placeholderText}>Bild hinzufuegen</Text>
+                <Text style={styles.placeholderText}>Bild hinzufügen</Text>
             )}
         </TouchableOpacity>
     );
@@ -83,17 +92,17 @@ const styles = StyleSheet.create({
         width: 120,
         height: 120,
         borderRadius: 12,
-        backgroundColor: '#e5e5e5',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden',
+        backgroundColor: "#e5e5e5",
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden",
     },
     image: {
-        width: '100%',
-        height: '100%',
+        width: "100%",
+        height: "100%",
     },
     placeholderText: {
-        color: '#666',
-        textAlign: 'center',
+        color: "#666",
+        textAlign: "center",
     },
 });

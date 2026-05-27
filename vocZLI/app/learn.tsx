@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useVoci } from "@/context/vociContext";
 
@@ -39,6 +39,13 @@ export default function LearnScreen() {
             </Text>
 
             <View style={styles.card}>
+                {currentVoci.imageUri && (
+                    <Image
+                        source={{ uri: currentVoci.imageUri }}
+                        style={styles.image}
+                        resizeMode="cover"
+                    />
+                )}
                 <Text style={styles.term}>{currentVoci.term}</Text>
                 {showTranslation && (
                     <Text style={styles.translation}>
@@ -122,6 +129,12 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.18,
         shadowRadius: 12,
         elevation: 8,
+    },
+    image: {
+        width: 200,
+        height: 200,
+        borderRadius: 8,
+        marginBottom: 24,
     },
     term: {
         fontSize: 40,

@@ -1,4 +1,6 @@
+import ImagePickerButton from "@/components/ImagePickerButton";
 import Voci from "@/models/voci";
+import { deleteStoredImage } from "@/utils/imageStorage";
 import { useEffect, useState } from "react";
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
@@ -18,19 +20,39 @@ export default function VociDetail(props: Readonly<VociDetailProps>) {
     const { voci, onSave } = props;
     const [term, setTerm] = useState(voci?.term ?? "");
     const [translation, setTranslation] = useState(voci?.translation ?? "");
+    const [imageUri, setImageUri] = useState(voci?.imageUri);
     const isEditing = voci !== undefined;
 
     useEffect(() => {
         setTerm(voci?.term ?? "");
         setTranslation(voci?.translation ?? "");
+        setImageUri(voci?.imageUri);
     }, [voci]);
+
+    const handleImageSelected = (selectedImageUri: string) => {
+        if (imageUri && imageUri !== voci?.imageUri && imageUri !== selectedImageUri) {
+            deleteStoredImage(imageUri);
+        }
+
+        setImageUri(selectedImageUri);
+    };
+
+    const handleCancel = () => {
+        if (imageUri && imageUri !== voci?.imageUri) {
+            deleteStoredImage(imageUri);
+        }
+
+        if (isEditing) {
+            props.onCancel();
+        }
+    };
 
     const handleSave = () => {
         const trimmedTerm = term.trim();
         const trimmedTranslation = translation.trim();
 
         if (trimmedTerm === "" || trimmedTranslation === "") {
-            Alert.alert("Fehler", "Bitte beide Felder ausfüllen");
+            Alert.alert("Fehler", "Bitte beide Felder ausfuellen");
             return;
         }
 
@@ -39,16 +61,19 @@ export default function VociDetail(props: Readonly<VociDetailProps>) {
                 ...voci,
                 term: trimmedTerm,
                 translation: trimmedTranslation,
+                imageUri,
             };
             onSave(updatedVoci);
         } else {
             const newVoci: Voci = {
                 term: trimmedTerm,
                 translation: trimmedTranslation,
+                imageUri,
             };
             onSave(newVoci);
             setTerm("");
             setTranslation("");
+            setImageUri(undefined);
         }
     };
 
@@ -68,7 +93,13 @@ export default function VociDetail(props: Readonly<VociDetailProps>) {
                 {
                     text: "Löschen",
                     style: "destructive",
-                    onPress: () => props.onDelete(voci),
+                    onPress: () => {
+                        if (imageUri && imageUri !== voci.imageUri) {
+                            deleteStoredImage(imageUri);
+                        }
+
+                        props.onDelete(voci);
+                    },
                 },
             ]
         );
@@ -78,6 +109,13 @@ export default function VociDetail(props: Readonly<VociDetailProps>) {
         <View style={styles.container}>
             <View style={styles.card}>
                 <Text style={styles.title}>{isEditing ? "Vokabel bearbeiten" : "Neue Vokabel"}</Text>
+
+                <View style={{alignSelf: "center"}}>
+                    <ImagePickerButton
+                        imageUri={imageUri}
+                        onImageSelected={handleImageSelected}
+                    />
+                </View>
 
                 <Text style={styles.label}>Term</Text>
                 <TextInput
@@ -114,7 +152,7 @@ export default function VociDetail(props: Readonly<VociDetailProps>) {
                                 styles.secondaryButton,
                                 pressed && styles.buttonPressed,
                             ]}
-                            onPress={props.onCancel}
+                            onPress={handleCancel}
                         >
                             <Text style={styles.secondaryButtonText}>Abbrechen</Text>
                         </Pressable>
@@ -161,6 +199,7 @@ const styles = StyleSheet.create({
         color: "#2c2430",
     },
     label: {
+        marginTop: 20,
         marginBottom: 8,
         fontSize: 16,
         fontWeight: "700",
