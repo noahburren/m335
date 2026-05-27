@@ -41,7 +41,15 @@ export default function RootLayout() {
               name="addVoci"
               options={{
                   title: "Neue Vokabel",
-                  presentation: 'modal'
+                  presentation: 'modal',
+                  headerLeft: () => (
+                      <Pressable
+                          onPress={() => router.back()}
+                          accessibilityLabel="Abbrechen"
+                      >
+                          <Ionicons name="chevron-back" size={32} color="#fff"/>
+                      </Pressable>
+                  ),
               }}
           />
       </Stack>

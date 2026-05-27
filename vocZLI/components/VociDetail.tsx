@@ -1,34 +1,60 @@
 import Voci from "@/models/voci";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
-interface VociDetailProps {
+type VociDetailProps =
+    | {
+    voci?: undefined;
     onSave: (voci: Voci) => void;
 }
+    | {
+    voci: Voci;
+    onSave: (voci: Voci) => void;
+    onDelete: (voci: Voci) => void;
+};
 
-export default function VociDetail({ onSave }: Readonly<VociDetailProps>) {
-    const [term, setTerm] = useState("");
-    const [translation, setTranslation] = useState("");
+export default function VociDetail(props: Readonly<VociDetailProps>) {
+    const { voci, onSave } = props;
+    const [term, setTerm] = useState(voci?.term ?? "");
+    const [translation, setTranslation] = useState(voci?.translation ?? "");
+    const isEditing = voci !== undefined;
+
+    useEffect(() => {
+        setTerm(voci?.term ?? "");
+        setTranslation(voci?.translation ?? "");
+    }, [voci]);
 
     const handleSave = () => {
-        if (term.trim() === "" || translation.trim() === "") {
+        const trimmedTerm = term.trim();
+        const trimmedTranslation = translation.trim();
+
+        if (trimmedTerm === "" || trimmedTranslation === "") {
             Alert.alert("Fehler", "Bitte beide Felder ausfüllen");
             return;
         }
 
-        const newVoci: Voci = {
-            term, translation,
-        };
-
-        onSave(newVoci);
-        setTerm("");
-        setTranslation("");
+        if (isEditing) {
+            const updatedVoci: Voci = {
+                ...voci,
+                term: trimmedTerm,
+                translation: trimmedTranslation,
+            };
+            onSave(updatedVoci);
+        } else {
+            const newVoci: Voci = {
+                term: trimmedTerm,
+                translation: trimmedTranslation,
+            };
+            onSave(newVoci);
+            setTerm("");
+            setTranslation("");
+        }
     };
 
     return (
         <View style={styles.container}>
             <View style={styles.card}>
-                <Text style={styles.title}>Neue Vokabel</Text>
+                <Text style={styles.title}>{isEditing ? "Vokabel bearbeiten" : "Neue Vokabel"}</Text>
 
                 <Text style={styles.label}>Term</Text>
                 <TextInput
@@ -57,6 +83,20 @@ export default function VociDetail({ onSave }: Readonly<VociDetailProps>) {
                 >
                     <Text style={styles.buttonText}>Speichern</Text>
                 </Pressable>
+
+                {isEditing && (
+                    <>
+                        <Pressable
+                            style={({ pressed }) => [
+                                styles.deleteButton,
+                                pressed && styles.buttonPressed,
+                            ]}
+                            onPress={() => props.onDelete(voci)}
+                        >
+                            <Text style={styles.buttonText}>Löschen</Text>
+                        </Pressable>
+                    </>
+                )}
             </View>
         </View>
     );
@@ -113,11 +153,35 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
         paddingVertical: 16,
     },
+    secondaryButton: {
+        marginTop: 12,
+        alignItems: "center",
+        borderWidth: 1,
+        borderColor: "#9e768c",
+        borderRadius: 8,
+        backgroundColor: "#fff",
+        paddingHorizontal: 24,
+        paddingVertical: 16,
+    },
+    deleteButton: {
+        marginTop: 12,
+        alignItems: "center",
+        borderRadius: 8,
+        backgroundColor: "#b64040",
+        paddingHorizontal: 24,
+        paddingVertical: 16,
+    },
     buttonPressed: {
         opacity: 0.75,
     },
     buttonText: {
         color: "#fff",
+        fontSize: 16,
+        fontWeight: "700",
+        textAlign: "center",
+    },
+    secondaryButtonText: {
+        color: "#9e768c",
         fontSize: 16,
         fontWeight: "700",
         textAlign: "center",
